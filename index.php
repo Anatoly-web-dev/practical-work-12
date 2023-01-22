@@ -87,7 +87,7 @@
 						<div class="task__text">
 							<p>Результат работы функции:</p>
 							<code class="task__code">
-								<pre><?= getPerfectPartner('Морозова', 'Ольга', 'Сергеевна', $persons); ?></pre>
+								<pre><?= getPerfectPartner('Премудрая', 'Василиса', 'Васильевна', $persons); ?></pre>
 							</code>
 						</div>
 					</section>

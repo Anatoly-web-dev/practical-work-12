@@ -102,37 +102,35 @@ function getPerfectPartner($surname, $name, $patronomyc, $array) {
 	$name = trim(mb_convert_case($name, MB_CASE_TITLE_SIMPLE)); // меняем регистр
 	$patronomyc = trim(mb_convert_case($patronomyc, MB_CASE_TITLE_SIMPLE)); // меняем регистр
 	$current_user_name = getFullnameFromParts($surname, $name, $patronomyc); // склеиваем строку
-
 	$user_gender = getGenderFromName($current_user_name); // 1||0||-1 (определяем пол указанного имени)
+	if ($user_gender === 0) {
+		return 'не удалось подобрать пару :(';
+	}
 
 	$random_index = array_rand($array); // получаем случайный индекс массива
 	$random_user_name = ($array[$random_index]['fullname']); // получаем случайное имя из массива
-	$random_user_name = mb_convert_case($random_user_name, MB_CASE_TITLE_SIMPLE); // меняем регистр
 	$random_user_gender = getGenderFromName($random_user_name); // определяем пол случайного имени из массива 
 
-	$current_user_short_name = getShortName($current_user_name); // сокращаем указанное имя
-	$random_user_short_name = getShortName($random_user_name); // сокращаем случайного имя из массива
-	$random_percent = round(rand(5000, 10000) / 100, 2);
+	// если указанный пол и случайный пол из массива равны ИЛИ пол из массива не удалось определить
+	if ($user_gender === $random_user_gender || $random_user_gender === 0) {
+		while (true) { // запускаем бесконечный цикл
+			$random_index = array_rand($array); // получаем случайный индекс массива
+			$random_user_name = ($array[$random_index]['fullname']); // получаем случайное имя из массива
+			$random_user_gender = getGenderFromName($random_user_name); // определяем пол случайного имени из массива
+			if ($user_gender !== $random_user_gender && $random_user_gender !== 0) break; // выходим из цикла если true
+		}
+	}
 
+	$random_user_name = mb_convert_case($random_user_name, MB_CASE_TITLE_SIMPLE); // меняем регистр
+	$random_user_short_name = getShortName($random_user_name); // сокращаем случайного имя из массива
+	$current_user_short_name = getShortName($current_user_name); // сокращаем указанное имя
+	// получаем случайное число от 50 до 100, с округлением до сотых 
+	$random_percent = round(rand(5000, 10000) / 100, 2);
 	// выводим строку в таком виде
 	$info = <<<text
-	👫 {$current_user_short_name} + {$random_user_short_name} 💏 =
-	💖 Идеально на {$random_percent}% 💖 
-	text;
+		👫 {$current_user_short_name} + {$random_user_short_name} 💏 =
+		💖 Идеально на {$random_percent}% 💖 
+		text;
 
-	// выводим строку в таком виде
-	$error = <<<text
-	👭 {$current_user_short_name} + {$random_user_short_name} 👬 = 
-	❌❌❌ НЕ подходят друг другу ❌❌❌ 
-	Причины:
-	- 🙅 пара НЕ противоположного пола 🙅 
-	- 🤷 программе не удалось точно определить пол по имени 😔
-	text;
-	// если указанный пол и случайный пол из массива равны ИЛИ пол из массива ИЛИ указанный пол не удалось определить
-	if ($user_gender === $random_user_gender || $random_user_gender === 0 || $user_gender === 0) {
-		$random_user_gender = getGenderFromName($random_user_name); // пробуем другое имя
-		return $error; // выводим сообщение о неудаче
-	} else { // иначе
-		return $info; // функция возвращает сформированную ранее строку
-	}
+	return $info; // функция возвращает созданную строку
 }
